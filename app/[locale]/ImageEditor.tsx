@@ -541,11 +541,28 @@ export const ImageEditor = ({
               className={`${textEl.fontFamily}`}
               style={{
                 fontSize: `${textEl.fontSize}px`,
-                color: textEl.color,
                 fontWeight: textEl.isBold ? 'bold' : 'normal',
                 fontStyle: textEl.isItalic ? 'italic' : 'normal',
                 whiteSpace: 'pre-wrap',
                 textAlign: 'center',
+                display: 'inline-block',
+                color: textEl.color,
+                WebkitTextStroke: textEl.strokeWidth > 0 ? `${textEl.strokeWidth}px ${textEl.strokeColor}` : undefined,
+                textShadow: textEl.shadowBlur > 0 
+                  ? `${textEl.shadowOffsetX}px ${textEl.shadowOffsetY}px ${textEl.shadowBlur}px ${textEl.shadowColor}`
+                  : undefined,
+                backgroundColor: textEl.backgroundColor,
+                padding: textEl.backgroundPadding ? `${textEl.backgroundPadding}px` : undefined,
+                borderRadius: textEl.backgroundRadius ? `${textEl.backgroundRadius}px` : undefined,
+                background: textEl.textStyle === 'gradient' || textEl.textStyle === 'rainbow' || textEl.textStyle === 'shiny'
+                  ? `linear-gradient(135deg, ${textEl.gradientStart || textEl.color}, ${textEl.gradientEnd || textEl.color})`
+                  : undefined,
+                backgroundClip: textEl.textStyle === 'gradient' || textEl.textStyle === 'rainbow' || textEl.textStyle === 'shiny' ? 'text' : undefined,
+                WebkitBackgroundClip: textEl.textStyle === 'gradient' || textEl.textStyle === 'rainbow' || textEl.textStyle === 'shiny' ? 'text' : undefined,
+                backgroundImage: textEl.textStyle === 'gradient' || textEl.textStyle === 'rainbow' || textEl.textStyle === 'shiny'
+                  ? `linear-gradient(135deg, ${textEl.gradientStart || textEl.color}, ${textEl.gradientEnd || textEl.color})`
+                  : undefined,
+                WebkitTextFillColor: textEl.textStyle === 'gradient' || textEl.textStyle === 'rainbow' || textEl.textStyle === 'shiny' ? 'transparent' : undefined,
               }}
             >
               {textEl.text}

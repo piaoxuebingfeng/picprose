@@ -1389,6 +1389,183 @@ export const RightPropertyPanel = () => {
                 maxValue={180}
                 className="w-full my-2"
               />
+
+              {/* Stroke Color */}
+              <div className="flex w-full py-2 items-end gap-2 mb-2">
+                <div className="flex-grow">
+                  <Input
+                    label={t("stroke_color")}
+                    value={textElements.find(t => t.id === selectedTextId)?.strokeColor || ""}
+                    onChange={(e) => updateTextElement(selectedTextId, { strokeColor: e.target.value })}
+                  />
+                </div>
+                <div>
+                  <Dropdown>
+                    <DropdownTrigger>
+                      <Button
+                        isIconOnly
+                        color="primary"
+                        variant="bordered"
+                        size="lg"
+                        style={{
+                          backgroundColor: textElements.find(t => t.id === selectedTextId)?.strokeColor || "#000000",
+                          borderWidth: "2px",
+                          borderColor: "#E9E9EB",
+                        }}
+                      ></Button>
+                    </DropdownTrigger>
+                    <DropdownMenu
+                      aria-label="Stroke color selection"
+                      variant="flat"
+                      disallowEmptySelection
+                      selectionMode="single"
+                    >
+                      <DropdownItem key="stroke">
+                        <div className="m-2">
+                          <CirclePicker
+                            colors={["#000000", "#FFFFFF", "#FF0000", "#00FF00", "#0000FF", "#FFFF00", "#FF00FF", "#00FFFF"]}
+                            onChangeComplete={(color) => updateTextElement(selectedTextId, { strokeColor: color.hex })}
+                          />
+                        </div>
+                      </DropdownItem>
+                    </DropdownMenu>
+                  </Dropdown>
+                </div>
+              </div>
+
+              {/* Stroke Width */}
+              <Slider
+                label={t("stroke_width")}
+                value={textElements.find(t => t.id === selectedTextId)?.strokeWidth || 0}
+                onChange={(value) => updateTextElement(selectedTextId, { strokeWidth: typeof value === "number" ? value : value[0] })}
+                size="sm"
+                step={0.5}
+                minValue={0}
+                maxValue={10}
+                className="w-full my-2"
+              />
+
+              {/* Shadow Color */}
+              <div className="flex w-full py-2 items-end gap-2 mb-2">
+                <div className="flex-grow">
+                  <Input
+                    label={t("shadow_color")}
+                    value={textElements.find(t => t.id === selectedTextId)?.shadowColor || ""}
+                    onChange={(e) => updateTextElement(selectedTextId, { shadowColor: e.target.value })}
+                  />
+                </div>
+                <div>
+                  <Dropdown>
+                    <DropdownTrigger>
+                      <Button
+                        isIconOnly
+                        color="primary"
+                        variant="bordered"
+                        size="lg"
+                        style={{
+                          backgroundColor: textElements.find(t => t.id === selectedTextId)?.shadowColor || "#000000",
+                          borderWidth: "2px",
+                          borderColor: "#E9E9EB",
+                        }}
+                      ></Button>
+                    </DropdownTrigger>
+                    <DropdownMenu
+                      aria-label="Shadow color selection"
+                      variant="flat"
+                      disallowEmptySelection
+                      selectionMode="single"
+                    >
+                      <DropdownItem key="shadow">
+                        <div className="m-2">
+                          <CirclePicker
+                            colors={["#000000", "#FFFFFF", "#FF0000", "#00FF00", "#0000FF", "#FFFF00"]}
+                            onChangeComplete={(color) => updateTextElement(selectedTextId, { shadowColor: color.hex })}
+                          />
+                        </div>
+                      </DropdownItem>
+                    </DropdownMenu>
+                  </Dropdown>
+                </div>
+              </div>
+
+              {/* Shadow Blur */}
+              <Slider
+                label={t("shadow_blur")}
+                value={textElements.find(t => t.id === selectedTextId)?.shadowBlur || 0}
+                onChange={(value) => updateTextElement(selectedTextId, { shadowBlur: typeof value === "number" ? value : value[0] })}
+                size="sm"
+                step={1}
+                minValue={0}
+                maxValue={30}
+                className="w-full my-2"
+              />
+
+              {/* Background Color */}
+              <div className="flex w-full py-2 items-end gap-2 mb-2">
+                <div className="flex-grow">
+                  <Input
+                    label={t("background_color")}
+                    value={textElements.find(t => t.id === selectedTextId)?.backgroundColor || ""}
+                    onChange={(e) => updateTextElement(selectedTextId, { backgroundColor: e.target.value })}
+                  />
+                </div>
+                <div>
+                  <Dropdown>
+                    <DropdownTrigger>
+                      <Button
+                        isIconOnly
+                        color="primary"
+                        variant="bordered"
+                        size="lg"
+                        style={{
+                          backgroundColor: textElements.find(t => t.id === selectedTextId)?.backgroundColor || "transparent",
+                          borderWidth: "2px",
+                          borderColor: "#E9E9EB",
+                        }}
+                      ></Button>
+                    </DropdownTrigger>
+                    <DropdownMenu
+                      aria-label="Background color selection"
+                      variant="flat"
+                      disallowEmptySelection
+                      selectionMode="single"
+                    >
+                      <DropdownItem key="bg">
+                        <div className="m-2">
+                          <CirclePicker
+                            colors={["transparent", "#000000", "#FFFFFF", "#FF0000", "#00FF00", "#0000FF", "#FFFF00", "#FF00FF"]}
+                            onChangeComplete={(color) => updateTextElement(selectedTextId, { backgroundColor: color.hex })}
+                          />
+                        </div>
+                      </DropdownItem>
+                    </DropdownMenu>
+                  </Dropdown>
+                </div>
+              </div>
+
+              {/* Background Padding */}
+              <Slider
+                label={t("background_padding")}
+                value={textElements.find(t => t.id === selectedTextId)?.backgroundPadding || 0}
+                onChange={(value) => updateTextElement(selectedTextId, { backgroundPadding: typeof value === "number" ? value : value[0] })}
+                size="sm"
+                step={1}
+                minValue={0}
+                maxValue={30}
+                className="w-full my-2"
+              />
+
+              {/* Background Radius */}
+              <Slider
+                label={t("background_radius")}
+                value={textElements.find(t => t.id === selectedTextId)?.backgroundRadius || 0}
+                onChange={(value) => updateTextElement(selectedTextId, { backgroundRadius: typeof value === "number" ? value : value[0] })}
+                size="sm"
+                step={1}
+                minValue={0}
+                maxValue={30}
+                className="w-full my-2"
+              />
             </div>
           </>
         )}

@@ -86,8 +86,8 @@ export default function Home() {
   return (
     <PicproseProvider onDownload={handleDownload}>
       <div className="flex flex-col lg:flex-row h-screen max-h-screen">
-        {/* Left panel - fixed width 350px */}
-        <div className="lg:w-[350px] flex-shrink-0 h-screen overflow-hidden">
+        {/* Left panel - fixed width 520px */}
+        <div className="lg:w-[520px] flex-shrink-0 h-screen overflow-hidden">
           <LeftResourcePanel />
         </div>
         

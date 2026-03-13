@@ -108,6 +108,39 @@ export interface TextElement {
   isItalic: boolean;
   rotation: number;
   visible: boolean;
+  // Text style properties
+  strokeColor: string;
+  strokeWidth: number;
+  shadowColor: string;
+  shadowBlur: number;
+  shadowOffsetX: number;
+  shadowOffsetY: number;
+  backgroundColor: string;
+  backgroundPadding: number;
+  backgroundRadius: number;
+  textStyle: string;
+  gradientStart: string;
+  gradientEnd: string;
+}
+
+// Define text style template
+export interface TextStyleTemplate {
+  id: string;
+  name: string;
+  preview: string;
+  strokeColor: string;
+  strokeWidth: number;
+  shadowColor: string;
+  shadowBlur: number;
+  shadowOffsetX: number;
+  shadowOffsetY: number;
+  backgroundColor: string;
+  backgroundPadding: number;
+  backgroundRadius: number;
+  textStyle: string;
+  gradientStart: string;
+  gradientEnd: string;
+  fontSize: number;
 }
 
 // Define Context type
@@ -151,7 +184,7 @@ interface PicproseContextType {
   
   // Text elements
   textElements: TextElement[];
-  addTextElement: (text: string) => void;
+  addTextElement: (text: string, style?: Partial<TextElement>) => void;
   updateTextElement: (id: string, updates: Partial<TextElement>) => void;
   removeTextElement: (id: string) => void;
   selectedTextId: string | null;
@@ -248,19 +281,31 @@ export function PicproseProvider({
   const [newTextInput, setNewTextInput] = useState<string>("");
 
   // Add a new text element
-  const addTextElement = (text: string) => {
+  const addTextElement = (text: string, style?: Partial<TextElement>) => {
     const newElement: TextElement = {
       id: `text-${Date.now()}`,
       text,
       x: 50,
       y: 50,
-      fontSize: 24,
-      fontFamily: 'font-anke',
-      color: '#FFFFFF',
-      isBold: false,
-      isItalic: false,
-      rotation: 0,
+      fontSize: style?.fontSize || 48,
+      fontFamily: style?.fontFamily || 'font-anke',
+      color: style?.color || '#FFFFFF',
+      isBold: style?.isBold || false,
+      isItalic: style?.isItalic || false,
+      rotation: style?.rotation || 0,
       visible: true,
+      strokeColor: style?.strokeColor || '',
+      strokeWidth: style?.strokeWidth || 0,
+      shadowColor: style?.shadowColor || '',
+      shadowBlur: style?.shadowBlur || 0,
+      shadowOffsetX: style?.shadowOffsetX || 0,
+      shadowOffsetY: style?.shadowOffsetY || 0,
+      backgroundColor: style?.backgroundColor || '',
+      backgroundPadding: style?.backgroundPadding || 0,
+      backgroundRadius: style?.backgroundRadius || 0,
+      textStyle: style?.textStyle || 'normal',
+      gradientStart: style?.gradientStart || '',
+      gradientEnd: style?.gradientEnd || '',
     };
     setTextElements(prev => [...prev, newElement]);
     setSelectedTextId(newElement.id);

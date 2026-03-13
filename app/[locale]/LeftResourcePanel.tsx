@@ -550,7 +550,7 @@ export const LeftResourcePanel = () => {
   const MAX_PHOTOS = 300; // New: Maximum photo count limit
   
   // Add current tab state
-  const [activeTab, setActiveTab] = React.useState("images");
+  const [activeMediaTab, setActiveMediaTab] = React.useState("images");
 
   // Add state to track loaded image IDs
   const [loadedPhotoIds, setLoadedPhotoIds] = useState<Set<string>>(new Set());
@@ -621,7 +621,7 @@ export const LeftResourcePanel = () => {
               // If retry is needed, try next page
               if (newRetryCount < MAX_RETRY_COUNT) {
                 setTimeout(() => {
-                  if (activeTab === "images" && hasMorePhotos) {
+                  if (activeMediaTab === "images" && hasMorePhotos) {
                     const nextPage = page + 1;
                     fetchPhotosBySearch(searchText, nextPage);
                   }
@@ -681,7 +681,7 @@ export const LeftResourcePanel = () => {
             setRetryCount(prev => prev + 1);
             setTimeout(() => {
               setIsLoading(false);
-              if (activeTab === "images" && hasMorePhotos) {
+              if (activeMediaTab === "images" && hasMorePhotos) {
                 fetchPhotosBySearch(searchText, page);
               }
             }, 1000);
@@ -698,7 +698,7 @@ export const LeftResourcePanel = () => {
           setRetryCount(prev => prev + 1);
           setTimeout(() => {
             setIsLoading(false);
-            if (activeTab === "images" && hasMorePhotos) {
+            if (activeMediaTab === "images" && hasMorePhotos) {
               fetchPhotosBySearch(searchText, page);
             }
           }, 1000);
@@ -769,7 +769,7 @@ export const LeftResourcePanel = () => {
               // If retry is needed, use setTimeout to avoid recursion
               if (newRetryCount < MAX_RETRY_COUNT) {
                 setTimeout(() => {
-                  if (activeTab === "images" && hasMorePhotos) {
+                  if (activeMediaTab === "images" && hasMorePhotos) {
                     fetchRandomPhotos();
                   }
                 }, 800);
@@ -823,7 +823,7 @@ export const LeftResourcePanel = () => {
             setRetryCount(prev => prev + 1);
             setTimeout(() => {
               setIsLoading(false);
-              if (activeTab === "images" && hasMorePhotos) {
+              if (activeMediaTab === "images" && hasMorePhotos) {
                 fetchRandomPhotos();
               }
             }, 1000);
@@ -840,7 +840,7 @@ export const LeftResourcePanel = () => {
           setRetryCount(prev => prev + 1);
           setTimeout(() => {
             setIsLoading(false);
-            if (activeTab === "images" && hasMorePhotos) {
+            if (activeMediaTab === "images" && hasMorePhotos) {
               fetchRandomPhotos();
             }
           }, 1000);
@@ -883,7 +883,7 @@ export const LeftResourcePanel = () => {
   };
 
   const handleLoadMore = () => {
-    if (isLoading || !hasMorePhotos || activeTab !== "images") {
+    if (isLoading || !hasMorePhotos || activeMediaTab !== "images") {
       return;
     }
     
@@ -910,8 +910,8 @@ export const LeftResourcePanel = () => {
   React.useEffect(() => {
     setWindowHeight(window.innerHeight);
     
-    // Only fetch random photos when component mounts and activeTab is "images"
-    if (activeTab === "images" && photos.length === 0 && !isLoading) {
+    // Only fetch random photos when component mounts and activeMediaTab is "images"
+    if (activeMediaTab === "images" && photos.length === 0 && !isLoading) {
       fetchRandomPhotos();
       setHasMorePhotos(true); // Ensure more can be loaded
     }
@@ -925,7 +925,7 @@ export const LeftResourcePanel = () => {
     return () => {
       window.removeEventListener("resize", handleResize);
     };
-  }, [activeTab, photos.length, isLoading]);
+  }, [activeMediaTab, photos.length, isLoading]);
 
   const selectPhoto = (index: number, photoList: any[]) => {
     if (index >= 0 && index < photoList.length) {
@@ -965,32 +965,6 @@ export const LeftResourcePanel = () => {
     );
   };
 
-  const handleTabChange = (key: string) => {
-    const previousTab = activeTab;
-    setActiveTab(key);
-    
-    // If switching from non-image tab to image tab
-    if (key === "images" && previousTab !== "images") {
-      // If no photos, fetch random photos
-      if (photos.length === 0 && !isLoading) {
-        setHasMorePhotos(true);
-        fetchRandomPhotos();
-      } else {
-        // Reset scroll position
-        setTimeout(() => {
-          if (scrollContainerRef.current) {
-            scrollContainerRef.current.scrollTop = 0;
-          }
-        }, 0);
-        
-        // Ensure hasMorePhotos state is correct
-        if (photos.length < MAX_PHOTOS) {
-          setHasMorePhotos(true);
-        }
-      }
-    }
-  };
-
   const renderImagePanel = () => (
     <div className="flex-grow relative">
       <div 
@@ -1002,7 +976,7 @@ export const LeftResourcePanel = () => {
         <InfiniteScroll
           dataLength={photos.length}
           next={handleLoadMore}
-          hasMore={hasMorePhotos && !isLoading && activeTab === "images"}
+          hasMore={hasMorePhotos && !isLoading && activeMediaTab === "images"}
           loader={
             <div className="grid justify-items-center">
               <Spinner className="my-4" />
@@ -1068,6 +1042,259 @@ export const LeftResourcePanel = () => {
     </div>
   );
 
+  // Text style templates
+  const textStyleTemplates = [
+    {
+      id: 'style-1',
+      name: '流行',
+      fontSize: 36,
+      color: '#FFFFFF',
+      strokeColor: '#000000',
+      strokeWidth: 2,
+      shadowColor: 'rgba(0,0,0,0.5)',
+      shadowBlur: 4,
+      shadowOffsetX: 2,
+      shadowOffsetY: 2,
+      backgroundColor: '',
+      backgroundPadding: 0,
+      backgroundRadius: 0,
+      textStyle: 'normal',
+      gradientStart: '',
+      gradientEnd: '',
+    },
+    {
+      id: 'style-2',
+      name: '彩虹',
+      fontSize: 36,
+      color: '#FFFFFF',
+      strokeColor: '',
+      strokeWidth: 0,
+      shadowColor: '',
+      shadowBlur: 0,
+      shadowOffsetX: 0,
+      shadowOffsetY: 0,
+      backgroundColor: 'rgba(0,0,0,0.5)',
+      backgroundPadding: 12,
+      backgroundRadius: 8,
+      textStyle: 'rainbow',
+      gradientStart: '#ff0000',
+      gradientEnd: '#ffff00',
+    },
+    {
+      id: 'style-3',
+      name: '渐变',
+      fontSize: 36,
+      color: '#FFFFFF',
+      strokeColor: '',
+      strokeWidth: 0,
+      shadowColor: '',
+      shadowBlur: 0,
+      shadowOffsetX: 0,
+      shadowOffsetY: 0,
+      backgroundColor: '',
+      backgroundPadding: 0,
+      backgroundRadius: 0,
+      textStyle: 'gradient',
+      gradientStart: '#667eea',
+      gradientEnd: '#764ba2',
+    },
+    {
+      id: 'style-4',
+      name: '发光',
+      fontSize: 36,
+      color: '#FFFFFF',
+      strokeColor: '',
+      strokeWidth: 0,
+      shadowColor: '#00ffff',
+      shadowBlur: 10,
+      shadowOffsetX: 0,
+      shadowOffsetY: 0,
+      backgroundColor: '',
+      backgroundPadding: 0,
+      backgroundRadius: 0,
+      textStyle: 'glow',
+      gradientStart: '',
+      gradientEnd: '',
+    },
+    {
+      id: 'style-5',
+      name: '3D',
+      fontSize: 36,
+      color: '#FFD700',
+      strokeColor: '#FFA500',
+      strokeWidth: 3,
+      shadowColor: '#000000',
+      shadowBlur: 0,
+      shadowOffsetX: 3,
+      shadowOffsetY: 3,
+      backgroundColor: '',
+      backgroundPadding: 0,
+      backgroundRadius: 0,
+      textStyle: '3d',
+      gradientStart: '',
+      gradientEnd: '',
+    },
+    {
+      id: 'style-6',
+      name: '霓虹',
+      fontSize: 36,
+      color: '#FF00FF',
+      strokeColor: '#FFFFFF',
+      strokeWidth: 1,
+      shadowColor: '#FF00FF',
+      shadowBlur: 8,
+      shadowOffsetX: 0,
+      shadowOffsetY: 0,
+      backgroundColor: 'rgba(0,0,0,0.6)',
+      backgroundPadding: 10,
+      backgroundRadius: 4,
+      textStyle: 'neon',
+      gradientStart: '',
+      gradientEnd: '',
+    },
+    {
+      id: 'style-7',
+      name: '边框',
+      fontSize: 36,
+      color: '#FFFFFF',
+      strokeColor: '#FF0000',
+      strokeWidth: 3,
+      shadowColor: '',
+      shadowBlur: 0,
+      shadowOffsetX: 0,
+      shadowOffsetY: 0,
+      backgroundColor: 'rgba(255,0,0,0.3)',
+      backgroundPadding: 8,
+      backgroundRadius: 4,
+      textStyle: 'border',
+      gradientStart: '',
+      gradientEnd: '',
+    },
+    {
+      id: 'style-8',
+      name: '投影',
+      fontSize: 36,
+      color: '#FFFFFF',
+      strokeColor: '',
+      strokeWidth: 0,
+      shadowColor: 'rgba(0,0,0,0.8)',
+      shadowBlur: 5,
+      shadowOffsetX: 4,
+      shadowOffsetY: 4,
+      backgroundColor: '',
+      backgroundPadding: 0,
+      backgroundRadius: 0,
+      textStyle: 'shadow',
+      gradientStart: '',
+      gradientEnd: '',
+    },
+    {
+      id: 'style-9',
+      name: '闪亮',
+      fontSize: 36,
+      color: '#FFFFFF',
+      strokeColor: '',
+      strokeWidth: 0,
+      shadowColor: '#FFFFFF',
+      shadowBlur: 15,
+      shadowOffsetX: 0,
+      shadowOffsetY: 0,
+      backgroundColor: 'rgba(0,0,0,0.4)',
+      backgroundPadding: 8,
+      backgroundRadius: 20,
+      textStyle: 'shiny',
+      gradientStart: '#C9D6FF',
+      gradientEnd: '#E2E2E2',
+    },
+    {
+      id: 'style-10',
+      name: '故障',
+      fontSize: 36,
+      color: '#00FF00',
+      strokeColor: '#FF00FF',
+      strokeWidth: 2,
+      shadowColor: '#00FFFF',
+      shadowBlur: 0,
+      shadowOffsetX: 2,
+      shadowOffsetY: 0,
+      backgroundColor: 'rgba(0,0,0,0.7)',
+      backgroundPadding: 6,
+      backgroundRadius: 0,
+      textStyle: 'glitch',
+      gradientStart: '',
+      gradientEnd: '',
+    },
+  ];
+
+  const { addTextElement } = usePicprose();
+
+  const handleTextStyleSelect = (style: typeof textStyleTemplates[0]) => {
+    addTextElement('双击编辑文字', {
+      fontSize: style.fontSize,
+      color: style.color,
+      strokeColor: style.strokeColor,
+      strokeWidth: style.strokeWidth,
+      shadowColor: style.shadowColor,
+      shadowBlur: style.shadowBlur,
+      shadowOffsetX: style.shadowOffsetX,
+      shadowOffsetY: style.shadowOffsetY,
+      backgroundColor: style.backgroundColor,
+      backgroundPadding: style.backgroundPadding,
+      backgroundRadius: style.backgroundRadius,
+      textStyle: style.textStyle,
+      gradientStart: style.gradientStart,
+      gradientEnd: style.gradientEnd,
+    });
+  };
+
+  const renderTextStylePanel = (t: any) => {
+    return (
+      <div className="flex-grow" style={{ height: windowHeight - 220 }}>
+        <ScrollShadow className="h-full overflow-y-auto p-4">
+          <h3 className="text-lg font-medium mb-4">{t('text_styles')}</h3>
+          <div className="grid grid-cols-2 gap-3">
+            {textStyleTemplates.map((style) => (
+              <div
+                key={style.id}
+                className="border border-default-200 rounded-lg p-3 cursor-pointer hover:border-primary hover:scale-105 transition-transform"
+                onClick={() => handleTextStyleSelect(style)}
+              >
+                <div 
+                  className="h-16 flex items-center justify-center text-white text-center leading-tight"
+                  style={{
+                    fontSize: '18px',
+                    fontWeight: 'bold',
+                    color: style.color,
+                    WebkitTextStroke: style.strokeWidth > 0 ? `${style.strokeWidth}px ${style.strokeColor}` : undefined,
+                    textShadow: style.shadowBlur > 0 
+                      ? `${style.shadowOffsetX}px ${style.shadowOffsetY}px ${style.shadowBlur}px ${style.shadowColor}`
+                      : undefined,
+                    backgroundColor: style.backgroundColor,
+                    padding: style.backgroundPadding,
+                    borderRadius: style.backgroundRadius,
+                    background: style.textStyle === 'gradient' || style.textStyle === 'rainbow' || style.textStyle === 'shiny'
+                      ? `linear-gradient(135deg, ${style.gradientStart}, ${style.gradientEnd})`
+                      : style.backgroundColor,
+                    backgroundClip: style.textStyle === 'gradient' || style.textStyle === 'rainbow' || style.textStyle === 'shiny' ? 'text' : undefined,
+                    WebkitBackgroundClip: style.textStyle === 'gradient' || style.textStyle === 'rainbow' || style.textStyle === 'shiny' ? 'text' : undefined,
+                    backgroundImage: style.textStyle === 'gradient' || style.textStyle === 'rainbow' || style.textStyle === 'shiny'
+                      ? `linear-gradient(135deg, ${style.gradientStart}, ${style.gradientEnd})`
+                      : undefined,
+                    WebkitTextFillColor: style.textStyle === 'gradient' || style.textStyle === 'rainbow' || style.textStyle === 'shiny' ? 'transparent' : undefined,
+                  }}
+                >
+                  {t('sample_text')}
+                </div>
+                <p className="text-center text-xs mt-2 text-gray-500">{style.name}</p>
+              </div>
+            ))}
+          </div>
+          <p className="text-xs text-gray-400 mt-4 text-center">{t('text_style_hint')}</p>
+        </ScrollShadow>
+      </div>
+    );
+  };
+
   const renderPatternPanel = () => (
     <div className="flex-grow" style={{ height: windowHeight - 220 }}>
       <ScrollShadow className="h-full overflow-y-auto">
@@ -1101,8 +1328,8 @@ export const LeftResourcePanel = () => {
       
       <div className="px-2 pt-2 flex-grow flex flex-col">
         <Tabs 
-          selectedKey={activeTab} 
-          onSelectionChange={(key) => handleTabChange(key as string)}
+          selectedKey={activeMediaTab} 
+          onSelectionChange={(key) => setActiveMediaTab(key as string)}
           color="default"
           variant="solid"
           fullWidth
@@ -1110,15 +1337,15 @@ export const LeftResourcePanel = () => {
             base: "flex flex-col flex-grow",
             panel: "flex-grow overflow-hidden",
             tabList: "mb-0",
-            tab: "py-2 px-2"
+            tab: "py-2 px-1 text-xs"
           }}
         >
           <Tab 
             key="images" 
             title={
-              <div className="flex items-center gap-2">
-                <GalleryIcon className="w-5 h-5" />
-                <span className="text-sm">{t('images_tab')}</span>
+              <div className="flex items-center gap-1">
+                <GalleryIcon className="w-4 h-4" />
+                <span className="text-xs">{t('images_tab')}</span>
               </div>
             }
           >
@@ -1127,9 +1354,9 @@ export const LeftResourcePanel = () => {
           <Tab 
             key="colors" 
             title={
-              <div className="flex items-center gap-2">
-                <PaletteIcon className="w-5 h-5" />
-                <span className="text-sm">{t('colors_tab')}</span>
+              <div className="flex items-center gap-1">
+                <PaletteIcon className="w-4 h-4" />
+                <span className="text-xs">{t('colors_tab')}</span>
               </div>
             }
           >
@@ -1138,9 +1365,9 @@ export const LeftResourcePanel = () => {
           <Tab 
             key="patterns" 
             title={
-              <div className="flex items-center gap-2">
-                <SvgIcon className="w-5 h-5" />
-                <span className="text-sm">{t('patterns_tab')}</span>
+              <div className="flex items-center gap-1">
+                <SvgIcon className="w-4 h-4" />
+                <span className="text-xs">{t('patterns_tab')}</span>
               </div>
             }
           >
@@ -1149,15 +1376,28 @@ export const LeftResourcePanel = () => {
           <Tab 
             key="text" 
             title={
-              <div className="flex items-center gap-2">
-                <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <div className="flex items-center gap-1">
+                <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16m-7 6h7" />
                 </svg>
-                <span className="text-sm">{t('text_tab')}</span>
+                <span className="text-xs">{t('text_tab')}</span>
               </div>
             }
           >
             {renderTextPanel()}
+          </Tab>
+          <Tab 
+            key="textstyle" 
+            title={
+              <div className="flex items-center gap-1">
+                <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M7 21a4 4 0 01-4-4V5a2 2 0 012-2h4a2 2 0 012 2v12a4 4 0 01-4 4zm0 0h12a2 2 0 002-2v-4a2 2 0 00-2-2h-2.343M11 7.343l1.657-1.657a2 2 0 012.828 0l2.829 2.829a2 2 0 010 2.828l-8.486 8.485M7 17h.01" />
+                </svg>
+                <span className="text-xs">{t('text_styles_tab')}</span>
+              </div>
+            }
+          >
+            {renderTextStylePanel(t)}
           </Tab>
         </Tabs>
       </div>
@@ -1204,7 +1444,7 @@ export const LeftResourcePanel = () => {
             value={searchQuery}
             onValueChange={setSearchQuery}
             onKeyDown={(e) => handleSearchKeyDown(e)}
-            isDisabled={activeTab !== "images"}
+            isDisabled={activeMediaTab !== "images"}
           />
 
           <NavbarContent justify="end">
@@ -1214,7 +1454,7 @@ export const LeftResourcePanel = () => {
                 variant="flat"
                 color="primary"
                 onClick={handleSearch}
-                isDisabled={activeTab !== "images"}
+                isDisabled={activeMediaTab !== "images"}
               >
                 <SearchIcon className="text-[#2F6EE7] mb-0.5 dark:text-white/90 text-slate-450 pointer-events-none flex-shrink-0" />
               </Button>
