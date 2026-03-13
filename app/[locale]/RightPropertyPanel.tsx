@@ -183,6 +183,7 @@ export const RightPropertyPanel = () => {
     { label: "3 : 2", value: "horizontal-3x2-aspect-[3/2]", description: "1185 × 790", ratio: "aspect-[3/2]" },
     { label: "4 : 3", value: "horizontal-4x3-aspect-[4/3]", description: "1185 × 889", ratio: "aspect-[4/3]" },
     { label: "16: 9", value: "horizontal-16x9-aspect-[16/9]", description: "1185 × 667", ratio: "aspect-[16/9]" },
+    { label: "23 : 16", value: "horizontal-23x16-aspect-[23/16]", description: "1150 × 800 (立创开源)", ratio: "aspect-[23/16]" },
   ];
 
   const verticalAspectOptions = [
@@ -190,6 +191,7 @@ export const RightPropertyPanel = () => {
     { label: "2:3", value: "vertical-2x3-aspect-[2/3]", description: "790 × 1185", ratio: "aspect-[2/3]" },
     { label: "3:4", value: "vertical-3x4-aspect-[3/4]", description: "889 × 1185", ratio: "aspect-[3/4]" },
     { label: "9:16", value: "vertical-9x16-aspect-[9/16]", description: "667 × 1185", ratio: "aspect-[9/16]" },
+    { label: "16:23", value: "vertical-16x23-aspect-[16/23]", description: "800 × 1150 (立创开源)", ratio: "aspect-[16/23]" },
   ];
 
   // Social platform preset sizes - add unique identifiers for each option
