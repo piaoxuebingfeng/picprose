@@ -119,9 +119,11 @@
         "solid": "Solid",
         "randomize_wave": "Randomize",
         "title_width": "Title Width",
+        "title_color": "Title Color",
         "devices": "Devices",
         "social_media": "Social Media",
-        "image_position": "Image Position"
+        "image_position": "Image Position",
+        "show_icon": "Show Icon"
     },
     "ImageEditorToolbar": {
         "edit": "Edit",

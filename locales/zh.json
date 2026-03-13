@@ -119,9 +119,11 @@
         "solid": "纯色",
         "randomize_wave": "随机生成",
         "title_width": "标题宽度",
+        "title_color": "标题颜色",
         "devices": "设备",
         "social_media": "社交媒体",
-        "image_position": "背景图片位置"
+        "image_position": "背景图片位置",
+        "show_icon": "显示图标"
     },
     "ImageEditorToolbar": {
         "edit": "编辑",

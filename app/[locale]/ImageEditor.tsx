@@ -63,6 +63,8 @@ export const ImageEditor = ({
     fontSizeValue,
     authorFontSizeValue,
     color,
+    titleColor,
+    showIcon,
     logoPosition,
     titleWidthValue,
   } = propertyInfo;
@@ -387,11 +389,12 @@ export const ImageEditor = ({
           onMouseDown={(e) => handleElementDragStart('title', e)}
         >
           <h1
-            className={`leading-tight text-center text-5xl font-bold text-white ${font}`}
+            className={`leading-tight text-center text-5xl font-bold ${font}`}
             style={{ 
               fontSize: `${fontSizeValue}px`,
               width: titleWidthValue ? `${titleWidthValue}%` : 'auto',
-              wordWrap: 'break-word'
+              wordWrap: 'break-word',
+              color: titleColor || '#FFFFFF'
             }}
           >
             {title}
@@ -421,7 +424,7 @@ export const ImageEditor = ({
         </div>
         
         {/* Icon container */}
-        {(devicon.length > 0 || icon.length > 0) && (
+        {showIcon && (devicon.length > 0 || icon.length > 0) && (
           <div 
             className={`absolute ${isDragMode ? 'cursor-move border border-dashed border-white/30' : ''}`}
             style={{ 

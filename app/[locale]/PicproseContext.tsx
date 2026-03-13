@@ -28,6 +28,8 @@ interface PropertyInfo {
   icon: string;
   devicon: string;
   color: string;
+  titleColor: string;
+  showIcon: boolean;
   aspect: string;
   blur: string;
   blurTrans: string;
@@ -153,6 +155,8 @@ const defaultPropertyInfo: PropertyInfo = {
   icon: config.icon,
   devicon: config.deviconValue[0] || "",
   color: config.backColor,
+  titleColor: "#FFFFFF",
+  showIcon: true,
   aspect: config.aspect,
   blur: "backdrop-blur-none",
   blurTrans: (Math.floor(2.55 * config.blurTrans)).toString(16),

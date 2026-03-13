@@ -131,6 +131,10 @@ export const RightPropertyPanel = () => {
     updateProperty("color", color.hex.toUpperCase());
   };
 
+  const handleTitleColorChange = (color: any) => {
+    updateProperty("titleColor", color.hex.toUpperCase());
+  };
+
   const handleBlurLevelChange = (level: any) => {
     updateProperty("blur", level);
   };
@@ -1016,7 +1020,7 @@ export const RightPropertyPanel = () => {
             />
           )}
           <Divider />
-          <div className="flex w-full py-2 items-end gap-2">
+          <div className="flex w-full py-2 items-center justify-between">
             <div className="flex-grow">
               <Select
                 label={t("icon")}
@@ -1050,7 +1054,7 @@ export const RightPropertyPanel = () => {
                 )}
               </Select>
             </div>
-            <div>
+            <div className="flex gap-2 ml-2">
               <input
                 type="file"
                 className="hidden"
@@ -1082,6 +1086,14 @@ export const RightPropertyPanel = () => {
                   />
                 </svg>
               </Button>
+              <Switch
+                isSelected={propertyInfo.showIcon}
+                onValueChange={(value) => updateProperty("showIcon", value)}
+                size="md"
+                className="ml-2"
+              >
+                {t("show_icon")}
+              </Switch>
             </div>
           </div>
           <Divider />
@@ -1141,6 +1153,68 @@ export const RightPropertyPanel = () => {
             value={propertyInfo.title}
             onValueChange={(value) => updateProperty("title", value)}
           />
+
+          <div className="flex w-full py-2 items-end gap-2">
+            <div className="flex-grow">
+              <Input
+                label={t("title_color")}
+                value={propertyInfo.titleColor}
+                onChange={(e) => updateProperty("titleColor", e.target.value)}
+              />
+            </div>
+            <div>
+              <Dropdown>
+                <DropdownTrigger>
+                  <Button
+                    isIconOnly
+                    color="primary"
+                    variant="bordered"
+                    size="lg"
+                    style={{
+                      fontSize: "20px",
+                      backgroundColor: propertyInfo.titleColor,
+                      borderWidth: "2px",
+                      borderColor: "#E9E9EB",
+                    }}
+                  ></Button>
+                </DropdownTrigger>
+                <DropdownMenu
+                  aria-label="Title color selection"
+                  variant="flat"
+                  disallowEmptySelection
+                  selectionMode="single"
+                >
+                  <DropdownItem key="text">
+                    <div className="m-2">
+                      <CirclePicker
+                        colors={[
+                          "#FFFFFF",
+                          "#1f2937",
+                          "#e91e63",
+                          "#9c27b0",
+                          "#673ab7",
+                          "#3f51b5",
+                          "#2196f3",
+                          "#03a9f4",
+                          "#00bcd4",
+                          "#009688",
+                          "#4caf50",
+                          "#8bc34a",
+                          "#cddc39",
+                          "#ffeb3b",
+                          "#ffc107",
+                          "#ff9800",
+                          "#ff5722",
+                          "#795548",
+                        ]}
+                        onChangeComplete={handleTitleColorChange}
+                      />
+                    </div>
+                  </DropdownItem>
+                </DropdownMenu>
+              </Dropdown>
+            </div>
+          </div>
 
           <Slider
             label={t("font_size")}
