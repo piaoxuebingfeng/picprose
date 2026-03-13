@@ -23,6 +23,7 @@ import InfiniteScroll from "react-infinite-scroll-component";
 import {useTranslations} from 'next-intl';
 import { usePicprose } from "./PicproseContext";
 import { SVG_BACKGROUNDS } from './svgBackgrounds';
+import { TextInputPanel } from './TextInputPanel';
 
 // Add SVG template type definition
 interface SvgTemplate {
@@ -1059,6 +1060,14 @@ export const LeftResourcePanel = () => {
     </div>
   );
 
+  const renderTextPanel = () => (
+    <div className="flex-grow" style={{ height: windowHeight - 220 }}>
+      <ScrollShadow className="h-full overflow-y-auto">
+        <TextInputPanel />
+      </ScrollShadow>
+    </div>
+  );
+
   const renderPatternPanel = () => (
     <div className="flex-grow" style={{ height: windowHeight - 220 }}>
       <ScrollShadow className="h-full overflow-y-auto">
@@ -1136,6 +1145,19 @@ export const LeftResourcePanel = () => {
             }
           >
             {renderPatternPanel()}
+          </Tab>
+          <Tab 
+            key="text" 
+            title={
+              <div className="flex items-center gap-2">
+                <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16m-7 6h7" />
+                </svg>
+                <span className="text-sm">{t('text_tab')}</span>
+              </div>
+            }
+          >
+            {renderTextPanel()}
           </Tab>
         </Tabs>
       </div>

@@ -46,7 +46,11 @@ export const ImageEditor = ({
     backgroundColor, 
     backgroundPattern,
     elementsLayout,
-    imagePosition
+    imagePosition,
+    textElements,
+    selectedTextId,
+    setSelectedTextId,
+    updateTextElement
   } = usePicprose();
   
   // Destructure properties
@@ -191,6 +195,58 @@ export const ImageEditor = ({
     }
     setDraggingElement(null);
   };
+
+  // Text element drag handling
+  const [draggingTextId, setDraggingTextId] = React.useState<string | null>(null);
+  const [textDragStart, setTextDragStart] = React.useState({ x: 0, y: 0 });
+
+  const handleTextDragStart = (textId: string, e: React.MouseEvent) => {
+    if (!isDragMode) {
+      setSelectedTextId(textId);
+      return;
+    }
+    e.stopPropagation();
+    setDraggingTextId(textId);
+    setTextDragStart({ x: e.clientX, y: e.clientY });
+  };
+
+  const handleTextMouseMove = (e: MouseEvent) => {
+    if (draggingTextId && isDragMode) {
+      const deltaX = snapToGrid(e.clientX - textDragStart.x);
+      const deltaY = snapToGrid(e.clientY - textDragStart.y);
+      
+      if (deltaX !== 0 || deltaY !== 0) {
+        const textEl = textElements.find(t => t.id === draggingTextId);
+        if (textEl) {
+          updateTextElement(draggingTextId, {
+            x: snapToGrid(textEl.x + deltaX),
+            y: snapToGrid(textEl.y + deltaY)
+          });
+        }
+        setTextDragStart({ x: e.clientX, y: e.clientY });
+      }
+    }
+  };
+
+  const handleTextMouseUp = () => {
+    setDraggingTextId(null);
+  };
+
+  // Add/remove text drag event listeners
+  useEffect(() => {
+    if (draggingTextId) {
+      document.addEventListener('mousemove', handleTextMouseMove);
+      document.addEventListener('mouseup', handleTextMouseUp);
+    } else {
+      document.removeEventListener('mousemove', handleTextMouseMove);
+      document.removeEventListener('mouseup', handleTextMouseUp);
+    }
+    
+    return () => {
+      document.removeEventListener('mousemove', handleTextMouseMove);
+      document.removeEventListener('mouseup', handleTextMouseUp);
+    };
+  }, [draggingTextId, textDragStart, isDragMode, textElements]);
   
   // Add/remove event listeners
   useEffect(() => {
@@ -369,7 +425,11 @@ export const ImageEditor = ({
   // Render draggable elements
   const renderDraggableElements = () => {
     return (
-      <div className="absolute inset-0" style={{ pointerEvents: 'none' }}>
+      <div 
+        className="absolute inset-0" 
+        style={{ pointerEvents: 'none' }}
+        onClick={() => setSelectedTextId(null)}
+      >
         {/* Title element */}
         <div 
           className={`absolute ${isDragMode ? 'cursor-move border border-dashed border-white/30' : ''}`}
@@ -386,7 +446,10 @@ export const ImageEditor = ({
             justifyContent: 'center',
             alignItems: 'center',
           }}
-          onMouseDown={(e) => handleElementDragStart('title', e)}
+          onMouseDown={(e) => {
+            e.stopPropagation();
+            handleElementDragStart('title', e);
+          }}
         >
           <h1
             className={`leading-tight text-center text-5xl font-bold ${font}`}
@@ -413,7 +476,10 @@ export const ImageEditor = ({
             pointerEvents: isDragMode ? 'auto' : 'none',
             visibility: elements.author.visible ? 'visible' : 'hidden'
           }}
-          onMouseDown={(e) => handleElementDragStart('author', e)}
+          onMouseDown={(e) => {
+            e.stopPropagation();
+            handleElementDragStart('author', e);
+          }}
         >
           <h2
             className={`text-xl font-semibold text-center text-white ${font}`}
@@ -436,11 +502,56 @@ export const ImageEditor = ({
               pointerEvents: isDragMode ? 'auto' : 'none',
               visibility: elements.icon.visible ? 'visible' : 'hidden'
             }}
-            onMouseDown={(e) => handleElementDragStart('icon', e)}
+            onMouseDown={(e) => {
+              e.stopPropagation();
+              handleElementDragStart('icon', e);
+            }}
           >
             {renderIcon()}
           </div>
         )}
+
+        {/* Custom text elements */}
+        {textElements.map((textEl) => (
+          <div
+            key={textEl.id}
+            className={`absolute ${isDragMode ? 'cursor-move' : ''} ${
+              selectedTextId === textEl.id 
+                ? 'ring-2 ring-primary' 
+                : isDragMode 
+                  ? 'border border-dashed border-white/30' 
+                  : ''
+            }`}
+            style={{
+              left: `calc(50% + ${textEl.x}px)`,
+              top: `calc(50% + ${textEl.y}px)`,
+              transform: `translate(-50%, -50%) rotate(${textEl.rotation}deg)`,
+              transition: draggingTextId === textEl.id ? 'none' : 'transform 0.1s ease-out, left 0.1s ease-out, top 0.1s ease-out',
+              padding: isDragMode ? '8px' : '0',
+              pointerEvents: isDragMode || selectedTextId === textEl.id ? 'auto' : 'none',
+              visibility: textEl.visible ? 'visible' : 'hidden',
+            }}
+            onMouseDown={(e) => handleTextDragStart(textEl.id, e)}
+            onClick={(e) => {
+              e.stopPropagation();
+              setSelectedTextId(textEl.id);
+            }}
+          >
+            <span
+              className={`${textEl.fontFamily}`}
+              style={{
+                fontSize: `${textEl.fontSize}px`,
+                color: textEl.color,
+                fontWeight: textEl.isBold ? 'bold' : 'normal',
+                fontStyle: textEl.isItalic ? 'italic' : 'normal',
+                whiteSpace: 'pre-wrap',
+                textAlign: 'center',
+              }}
+            >
+              {textEl.text}
+            </span>
+          </div>
+        ))}
       </div>
     );
   };

@@ -82,7 +82,10 @@ export const RightPropertyPanel = () => {
     setShowSvgPanel,
     backgroundType,
     imagePosition,
-    setImagePosition
+    setImagePosition,
+    textElements,
+    selectedTextId,
+    updateTextElement
   } = usePicprose();
   
   const titleOptions = config.title;
@@ -210,41 +213,44 @@ export const RightPropertyPanel = () => {
   ];
 
   const fontOptions = [
-    {
-      label: "Font-DingTalk",
-      value: "font-dingtalk",
-      description: "The largest land animal",
-    },
-    {
-      label: "Font-Alibaba",
-      value: "font-alibaba",
-      description: "The largest land animal",
-    },
-    {
-      label: "Font-OpenSans",
-      value: "font-opensans",
-      description: "The largest land animal",
-    },
-    {
-      label: "Font-Anke",
-      value: "font-anke",
-      description: "The second most popular pet in the world",
-    },
-    {
-      label: "Font-Roboto",
-      value: "font-roboto-mono",
-      description: "The most popular pet in the world",
-    },
-    {
-      label: "Font-KingSoft",
-      value: "font-kingsoft",
-      description: "The largest land animal",
-    },
-    {
-      label: "Font-XinYiGuanHei",
-      value: "font-xinyiguanhei",
-      description: "The largest land animal",
-    },
+    // Local fonts
+    { label: "DingTalk", value: "font-dingtalk" },
+    { label: "Alibaba", value: "font-alibaba" },
+    { label: "Kingsoft", value: "font-kingsoft" },
+    { label: "XinYiGuanHei", value: "font-xinyiguanhei" },
+    // Sans-serif fonts
+    { label: "Open Sans", value: "font-opensans" },
+    { label: "Montserrat", value: "font-montserrat" },
+    { label: "Lato", value: "font-lato" },
+    { label: "Poppins", value: "font-poppins" },
+    { label: "Raleway", value: "font-raleway" },
+    { label: "Nunito", value: "font-nunito" },
+    { label: "Source Sans", value: "font-sourcesans" },
+    { label: "Oswald", value: "font-oswald" },
+    { label: "Quicksand", value: "font-quicksand" },
+    { label: "Comfortaa", value: "font-comfortaa" },
+    { label: "Ubuntu", value: "font-ubuntu" },
+    { label: "Cabin", value: "font-cabin" },
+    { label: "Exo 2", value: "font-exo2" },
+    { label: "Oxygen", value: "font-oxygen" },
+    { label: "Anke", value: "font-anke" },
+    // Serif fonts
+    { label: "Playfair Display", value: "font-playfair" },
+    { label: "Merriweather", value: "font-merriweather" },
+    { label: "Lora", value: "font-lora" },
+    { label: "Bitter", value: "font-bitter" },
+    { label: "Libre Baskerville", value: "font-libre" },
+    { label: "Roboto Slab", value: "font-robotoslab" },
+    { label: "Tinos", value: "font-tinos" },
+    { label: "Volkhov", value: "font-volkhov" },
+    // Monospace fonts
+    { label: "Roboto Mono", value: "font-roboto-mono" },
+    { label: "Fira Code", value: "font-fira" },
+    { label: "Inconsolata", value: "font-inconsolata" },
+    // Decorative/Handwriting fonts
+    { label: "Dancing Script", value: "font-dancing" },
+    { label: "Pacifico", value: "font-pacifico" },
+    { label: "Tangerine", value: "font-tangerine" },
   ];
 
   const handleCustomWidthChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -1259,6 +1265,131 @@ export const RightPropertyPanel = () => {
             className="w-full my-2"
           />
         </div>
+
+        {/* Text element editing panel - show when a text is selected */}
+        {selectedTextId && textElements.find(t => t.id === selectedTextId) && (
+          <>
+            <Divider />
+            <div className="flex-grow overflow-y-auto px-4 py-2">
+              <div className="text-sm font-medium mb-2">{t("text_settings")}</div>
+              
+              {/* Text content */}
+              <Textarea
+                label={t("text_content")}
+                value={textElements.find(t => t.id === selectedTextId)?.text || ""}
+                onValueChange={(value) => updateTextElement(selectedTextId, { text: value })}
+                className="w-full mb-2"
+              />
+
+              {/* Font size */}
+              <Slider
+                label={t("text_size")}
+                value={textElements.find(t => t.id === selectedTextId)?.fontSize || 24}
+                onChange={(value) => updateTextElement(selectedTextId, { fontSize: typeof value === "number" ? value : value[0] })}
+                size="sm"
+                step={1}
+                minValue={8}
+                maxValue={200}
+                className="w-full my-2"
+              />
+
+              {/* Font family */}
+              <Select
+                label={t("text_font")}
+                className="w-full mb-2"
+                selectedKeys={[textElements.find(t => t.id === selectedTextId)?.fontFamily || "font-anke"]}
+                onSelectionChange={(keys) => {
+                  const selected = Array.from(keys)[0]?.toString() || "font-anke";
+                  updateTextElement(selectedTextId, { fontFamily: selected });
+                }}
+              >
+                {fontOptions.map((font) => (
+                  <SelectItem key={font.value} value={font.value}>
+                    {font.label}
+                  </SelectItem>
+                ))}
+              </Select>
+
+              {/* Color */}
+              <div className="flex w-full py-2 items-end gap-2 mb-2">
+                <div className="flex-grow">
+                  <Input
+                    label={t("text_color")}
+                    value={textElements.find(t => t.id === selectedTextId)?.color || "#FFFFFF"}
+                    onChange={(e) => updateTextElement(selectedTextId, { color: e.target.value })}
+                  />
+                </div>
+                <div>
+                  <Dropdown>
+                    <DropdownTrigger>
+                      <Button
+                        isIconOnly
+                        color="primary"
+                        variant="bordered"
+                        size="lg"
+                        style={{
+                          backgroundColor: textElements.find(t => t.id === selectedTextId)?.color || "#FFFFFF",
+                          borderWidth: "2px",
+                          borderColor: "#E9E9EB",
+                        }}
+                      ></Button>
+                    </DropdownTrigger>
+                    <DropdownMenu
+                      aria-label="Text color selection"
+                      variant="flat"
+                      disallowEmptySelection
+                      selectionMode="single"
+                    >
+                      <DropdownItem key="text">
+                        <div className="m-2">
+                          <CirclePicker
+                            colors={[
+                              "#FFFFFF", "#1f2937", "#e91e63", "#9c27b0", "#673ab7",
+                              "#3f51b5", "#2196f3", "#03a9f4", "#00bcd4", "#009688",
+                              "#4caf50", "#8bc34a", "#cddc39", "#ffeb3b", "#ffc107",
+                              "#ff9800", "#ff5722", "#795548",
+                            ]}
+                            onChangeComplete={(color) => updateTextElement(selectedTextId, { color: color.hex })}
+                          />
+                        </div>
+                      </DropdownItem>
+                    </DropdownMenu>
+                  </Dropdown>
+                </div>
+              </div>
+
+              {/* Style toggles */}
+              <div className="flex gap-2 mb-2">
+                <Switch
+                  isSelected={textElements.find(t => t.id === selectedTextId)?.isBold || false}
+                  onValueChange={(value) => updateTextElement(selectedTextId, { isBold: value })}
+                  size="sm"
+                >
+                  {t("bold")}
+                </Switch>
+                <Switch
+                  isSelected={textElements.find(t => t.id === selectedTextId)?.isItalic || false}
+                  onValueChange={(value) => updateTextElement(selectedTextId, { isItalic: value })}
+                  size="sm"
+                >
+                  {t("italic")}
+                </Switch>
+              </div>
+
+              {/* Rotation */}
+              <Slider
+                label={t("text_rotation")}
+                value={textElements.find(t => t.id === selectedTextId)?.rotation || 0}
+                onChange={(value) => updateTextElement(selectedTextId, { rotation: typeof value === "number" ? value : value[0] })}
+                size="sm"
+                step={1}
+                minValue={-180}
+                maxValue={180}
+                className="w-full my-2"
+              />
+            </div>
+          </>
+        )}
         
         <Divider />
         <div className="w-full mt-4 px-4 pb-4">

@@ -95,6 +95,21 @@ interface ElementLayout {
   icon: { x: number; y: number; visible: boolean };
 }
 
+// Define text element interface
+export interface TextElement {
+  id: string;
+  text: string;
+  x: number;
+  y: number;
+  fontSize: number;
+  fontFamily: string;
+  color: string;
+  isBold: boolean;
+  isItalic: boolean;
+  rotation: number;
+  visible: boolean;
+}
+
 // Define Context type
 interface PicproseContextType {
   // Image information
@@ -133,6 +148,16 @@ interface PicproseContextType {
   // Add layout related properties
   elementsLayout: ElementLayout;
   setElementsLayout: (layout: ElementLayout) => void;
+  
+  // Text elements
+  textElements: TextElement[];
+  addTextElement: (text: string) => void;
+  updateTextElement: (id: string, updates: Partial<TextElement>) => void;
+  removeTextElement: (id: string) => void;
+  selectedTextId: string | null;
+  setSelectedTextId: (id: string | null) => void;
+  newTextInput: string;
+  setNewTextInput: (text: string) => void;
 }
 
 // Create default image information
@@ -216,6 +241,45 @@ export function PicproseProvider({
 
   // Add layout state
   const [elementsLayout, setElementsLayout] = useState<ElementLayout>(defaultElementsLayout);
+
+  // Text elements state
+  const [textElements, setTextElements] = useState<TextElement[]>([]);
+  const [selectedTextId, setSelectedTextId] = useState<string | null>(null);
+  const [newTextInput, setNewTextInput] = useState<string>("");
+
+  // Add a new text element
+  const addTextElement = (text: string) => {
+    const newElement: TextElement = {
+      id: `text-${Date.now()}`,
+      text,
+      x: 50,
+      y: 50,
+      fontSize: 24,
+      fontFamily: 'font-anke',
+      color: '#FFFFFF',
+      isBold: false,
+      isItalic: false,
+      rotation: 0,
+      visible: true,
+    };
+    setTextElements(prev => [...prev, newElement]);
+    setSelectedTextId(newElement.id);
+  };
+
+  // Update text element
+  const updateTextElement = (id: string, updates: Partial<TextElement>) => {
+    setTextElements(prev => 
+      prev.map(el => el.id === id ? { ...el, ...updates } : el)
+    );
+  };
+
+  // Remove text element
+  const removeTextElement = (id: string) => {
+    setTextElements(prev => prev.filter(el => el.id !== id));
+    if (selectedTextId === id) {
+      setSelectedTextId(null);
+    }
+  };
 
   // Use useEffect to set random title, this will only execute on client side
   useEffect(() => {
@@ -393,6 +457,14 @@ export function PicproseProvider({
         setShowSvgPanel,
         elementsLayout,
         setElementsLayout,
+        textElements,
+        addTextElement,
+        updateTextElement,
+        removeTextElement,
+        selectedTextId,
+        setSelectedTextId,
+        newTextInput,
+        setNewTextInput,
       }}
     >
       {children}
