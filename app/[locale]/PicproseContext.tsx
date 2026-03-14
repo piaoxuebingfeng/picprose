@@ -108,6 +108,8 @@ export interface TextElement {
   isItalic: boolean;
   rotation: number;
   visible: boolean;
+  width: number;
+  height: number;
   // Text style properties
   strokeColor: string;
   strokeWidth: number;
@@ -294,6 +296,8 @@ export function PicproseProvider({
       isItalic: style?.isItalic || false,
       rotation: style?.rotation || 0,
       visible: true,
+      width: style?.width || 300,
+      height: style?.height || 100,
       strokeColor: style?.strokeColor || '',
       strokeWidth: style?.strokeWidth || 0,
       shadowColor: style?.shadowColor || '',

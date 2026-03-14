@@ -3,7 +3,7 @@ import { createApi } from 'unsplash-js';
 import { NextRequest } from 'next/server';
 
 const unsplashApi = createApi({
-  accessKey: process.env.UNSPLASH_API_KEY!, // Note: do not use NEXT_PUBLIC_ prefix
+  accessKey: process.env.UNSPLASH_API_KEY || '',
 });
 
 export async function GET(request: NextRequest) {
@@ -11,6 +11,14 @@ export async function GET(request: NextRequest) {
   const query = searchParams.get('query');
   const page = searchParams.get('page') || '1';
   const perPage = searchParams.get('perPage') || '30';
+  
+  // Check if API key is configured
+  if (!process.env.UNSPLASH_API_KEY) {
+    return NextResponse.json(
+      { error: 'API_KEY_MISSING', message: 'Unsplash API key is not configured' },
+      { status: 401 }
+    );
+  }
   
   try {
     let result;
@@ -27,9 +35,16 @@ export async function GET(request: NextRequest) {
     }
     
     return NextResponse.json(result);
-  } catch (error) {
+  } catch (error: any) {
+    // Check if it's an API key error
+    if (error?.status === 401 || error?.status === 403) {
+      return NextResponse.json(
+        { error: 'API_KEY_INVALID', message: 'Unsplash API key is invalid' },
+        { status: error.status }
+      );
+    }
     return NextResponse.json(
-      { error: 'Failed to fetch photos' },
+      { error: 'Failed to fetch photos', details: error?.message },
       { status: 500 }
     );
   }

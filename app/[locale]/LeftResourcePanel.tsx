@@ -546,6 +546,7 @@ export const LeftResourcePanel = () => {
   const scrollPositionRef = React.useRef(0);
   const [isLoading, setIsLoading] = React.useState(false);
   const [retryCount, setRetryCount] = React.useState(0);
+  const [loadError, setLoadError] = React.useState<string | null>(null);
   const MAX_RETRY_COUNT = 3;
   const MAX_PHOTOS = 300; // New: Maximum photo count limit
   
@@ -722,19 +723,42 @@ export const LeftResourcePanel = () => {
       return;
     }
 
+    // Stop if already has error
+    if (loadError) {
+      setHasMorePhotos(false);
+      return;
+    }
+
     setIsLoading(true);
     
     // Add random parameter for random requests to get different image sets
     const randomSeed = Math.floor(Math.random() * 10000);
     
     fetch(`/api/unsplash?random=true&seed=${randomSeed}`)
-      .then(response => {
-        if (!response.ok) {
-          throw new Error(`HTTP error! Status: ${response.status}`);
+      .then(res => {
+        if (!res.ok) {
+          if (res.status === 401 || res.status === 403) {
+            setLoadError('api_key_missing');
+            setHasMorePhotos(false);
+            setIsLoading(false);
+            return null;
+          }
+          throw new Error(`HTTP error! Status: ${res.status}`);
         }
-        return response.json();
+        return res.json();
       })
       .then(result => {
+        // Skip if API error already handled
+        if (!result) return;
+        
+        // Check for API error in response
+        if (result.error && (result.error.includes('API_KEY'))) {
+          setLoadError('api_key_missing');
+          setHasMorePhotos(false);
+          setIsLoading(false);
+          return;
+        }
+        
         if (result && result.response) {
           const responseArray = Array.isArray(result.response) 
             ? result.response 
@@ -835,6 +859,15 @@ export const LeftResourcePanel = () => {
       })
       .catch(error => {
         console.error("获取随机照片出错：", error);
+        
+        // Check if it's an API key issue
+        if (error.message && (error.message.includes('401') || error.message.includes('403') || error.message.includes('API_KEY'))) {
+          setLoadError('api_key_missing');
+          setHasMorePhotos(false);
+          setIsLoading(false);
+          return;
+        }
+        
         // Decide whether to continue trying based on retry count when error occurs
         if (retryCount < MAX_RETRY_COUNT) {
           setRetryCount(prev => prev + 1);
@@ -911,7 +944,8 @@ export const LeftResourcePanel = () => {
     setWindowHeight(window.innerHeight);
     
     // Only fetch random photos when component mounts and activeMediaTab is "images"
-    if (activeMediaTab === "images" && photos.length === 0 && !isLoading) {
+    // Skip if there was an error loading before
+    if (activeMediaTab === "images" && photos.length === 0 && !isLoading && !loadError) {
       fetchRandomPhotos();
       setHasMorePhotos(true); // Ensure more can be loaded
     }
@@ -973,42 +1007,77 @@ export const LeftResourcePanel = () => {
         style={{ height: windowHeight - 220, overflow: 'auto' }}
         className="scrollbar-thin scrollbar-color-auto"
       >
-        <InfiniteScroll
-          dataLength={photos.length}
-          next={handleLoadMore}
-          hasMore={hasMorePhotos && !isLoading && activeMediaTab === "images"}
-          loader={
-            <div className="grid justify-items-center">
-              <Spinner className="my-4" />
+        {/* Error message for API key missing */}
+        {loadError ? (
+          <div className="p-4 m-4 bg-yellow-50 border border-yellow-200 rounded-lg">
+            <div className="text-yellow-800 font-medium mb-2">无法加载图片</div>
+            <div className="text-yellow-700 text-sm mb-3">
+              请配置 Unsplash API Key 以加载图片。
             </div>
-          }
-          endMessage={
-            photos.length > 0 ? (
+            <div className="text-xs text-yellow-600 space-y-1">
+              <p>配置方法：</p>
+              <ol className="list-decimal list-inside ml-2">
+                <li>访问 Unsplash Developers 注册/登录</li>
+                <li>创建一个新的 Application</li>
+                <li>复制 Access Key</li>
+                <li>在项目根目录创建 .env.local 文件</li>
+                <li>添加 UNSPLASH_API_KEY=你的AccessKey</li>
+                <li>重启开发服务器</li>
+              </ol>
+            </div>
+            <Button
+              size="sm"
+              color="warning"
+              variant="flat"
+              className="mt-3"
+              onClick={() => {
+                setLoadError(null);
+                setRetryCount(0);
+                setHasMorePhotos(true);
+                fetchRandomPhotos();
+              }}
+            >
+              重试
+            </Button>
+          </div>
+        ) : (
+          <InfiniteScroll
+            dataLength={photos.length}
+            next={handleLoadMore}
+            hasMore={hasMorePhotos && !isLoading && activeMediaTab === "images"}
+            loader={
               <div className="grid justify-items-center">
-                <div className="my-4">{t('search_end')}</div>
+                <Spinner className="my-4" />
               </div>
-            ) : null
-          }
-          scrollableTarget="scrollableDiv"
-          className="px-3"
-          scrollThreshold={0.75}
-          initialScrollY={0}
-        >
-          {photos.length > 0 ? (
-            <PhotoAlbum
-              photos={photos}
-              layout="rows"
-              targetRowHeight={TARGET_ROW_HEIGHT}
-              rowConstraints={ROW_CONSTRAINTS}
-              spacing={PHOTO_SPACING}
-              onClick={({ index }) => selectPhoto(index, photos)}
-            />
-          ) : (
-            <div className="flex items-center justify-center h-40">
-              <Spinner />
-            </div>
-          )}
-        </InfiniteScroll>
+            }
+            endMessage={
+              photos.length > 0 ? (
+                <div className="grid justify-items-center">
+                  <div className="my-4">{t('search_end')}</div>
+                </div>
+              ) : null
+            }
+            scrollableTarget="scrollableDiv"
+            className="px-3"
+            scrollThreshold={0.75}
+            initialScrollY={0}
+          >
+            {photos.length > 0 ? (
+              <PhotoAlbum
+                photos={photos}
+                layout="rows"
+                targetRowHeight={TARGET_ROW_HEIGHT}
+                rowConstraints={ROW_CONSTRAINTS}
+                spacing={PHOTO_SPACING}
+                onClick={({ index }) => selectPhoto(index, photos)}
+              />
+            ) : (
+              <div className="flex items-center justify-center h-40 text-gray-400">
+                {t('search_end') || '暂无图片'}
+              </div>
+            )}
+          </InfiniteScroll>
+        )}
       </div>
       <div className="absolute bottom-0 left-0 m-4 w-40 h-6 bg-black bg-opacity-65 rounded-xl">
         <div className="flex items-center ml-2">

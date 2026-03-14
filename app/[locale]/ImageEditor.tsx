@@ -82,6 +82,10 @@ export const ImageEditor = ({
   const [draggingElement, setDraggingElement] = React.useState<DraggableElement>(null);
   const [dragStart, setDragStart] = React.useState({ x: 0, y: 0 });
   
+  // Resize state
+  const [resizingTextId, setResizingTextId] = React.useState<string | null>(null);
+  const [resizeStart, setResizeStart] = React.useState({ x: 0, y: 0, width: 0, height: 0 });
+  
   // References
   const imageRef = useRef<HTMLImageElement>(null);
   const containerRef = useRef<HTMLDivElement>(null);
@@ -231,6 +235,54 @@ export const ImageEditor = ({
   const handleTextMouseUp = () => {
     setDraggingTextId(null);
   };
+
+  // Resize handling
+  const handleResizeStart = (textId: string, e: React.MouseEvent) => {
+    e.stopPropagation();
+    const textEl = textElements.find(t => t.id === textId);
+    if (textEl) {
+      setResizingTextId(textId);
+      setResizeStart({
+        x: e.clientX,
+        y: e.clientY,
+        width: textEl.width,
+        height: textEl.height
+      });
+    }
+  };
+
+  const handleResizeMove = (e: MouseEvent) => {
+    if (resizingTextId) {
+      const deltaX = e.clientX - resizeStart.x;
+      const deltaY = e.clientY - resizeStart.y;
+      const newWidth = Math.max(50, resizeStart.width + deltaX);
+      const newHeight = Math.max(30, resizeStart.height + deltaY);
+      updateTextElement(resizingTextId, {
+        width: newWidth,
+        height: newHeight
+      });
+    }
+  };
+
+  const handleResizeUp = () => {
+    setResizingTextId(null);
+  };
+
+  // Add resize event listeners
+  React.useEffect(() => {
+    if (resizingTextId) {
+      document.addEventListener('mousemove', handleResizeMove);
+      document.addEventListener('mouseup', handleResizeUp);
+    } else {
+      document.removeEventListener('mousemove', handleResizeMove);
+      document.removeEventListener('mouseup', handleResizeUp);
+    }
+    
+    return () => {
+      document.removeEventListener('mousemove', handleResizeMove);
+      document.removeEventListener('mouseup', handleResizeUp);
+    };
+  }, [resizingTextId, resizeStart]);
 
   // Add/remove text drag event listeners
   useEffect(() => {
@@ -427,7 +479,7 @@ export const ImageEditor = ({
     return (
       <div 
         className="absolute inset-0" 
-        style={{ pointerEvents: 'none' }}
+        style={{ pointerEvents: 'auto' }}
         onClick={() => setSelectedTextId(null)}
       >
         {/* Title element */}
@@ -530,6 +582,8 @@ export const ImageEditor = ({
               padding: isDragMode ? '8px' : '0',
               pointerEvents: isDragMode || selectedTextId === textEl.id ? 'auto' : 'none',
               visibility: textEl.visible ? 'visible' : 'hidden',
+              width: textEl.width || 'auto',
+              minHeight: textEl.height || 'auto',
             }}
             onMouseDown={(e) => handleTextDragStart(textEl.id, e)}
             onClick={(e) => {
@@ -537,15 +591,17 @@ export const ImageEditor = ({
               setSelectedTextId(textEl.id);
             }}
           >
-            <span
+            <div
               className={`${textEl.fontFamily}`}
               style={{
                 fontSize: `${textEl.fontSize}px`,
                 fontWeight: textEl.isBold ? 'bold' : 'normal',
                 fontStyle: textEl.isItalic ? 'italic' : 'normal',
                 whiteSpace: 'pre-wrap',
+                wordBreak: 'break-word',
                 textAlign: 'center',
                 display: 'inline-block',
+                width: '100%',
                 color: textEl.color,
                 WebkitTextStroke: textEl.strokeWidth > 0 ? `${textEl.strokeWidth}px ${textEl.strokeColor}` : undefined,
                 textShadow: textEl.shadowBlur > 0 
@@ -566,7 +622,19 @@ export const ImageEditor = ({
               }}
             >
               {textEl.text}
-            </span>
+            </div>
+            {/* Resize handle */}
+            {selectedTextId === textEl.id && (
+              <div
+                className="absolute bottom-0 right-0 w-4 h-4 cursor-se-resize bg-primary rounded-bl"
+                style={{ transform: 'translate(50%, 50%)' }}
+                onMouseDown={(e) => handleResizeStart(textEl.id, e)}
+              >
+                <svg className="w-3 h-3 text-white" viewBox="0 0 24 24" fill="currentColor">
+                  <path d="M22 22H20V20H22V22ZM22 18H20V16H22V18ZM18 22H16V20H18V22ZM22 14H20V12H22V14ZM18 18H16V16H18V18ZM14 22H12V20H14V22Z" />
+                </svg>
+              </div>
+            )}
           </div>
         ))}
       </div>
@@ -644,35 +712,6 @@ export const ImageEditor = ({
         {/* Loading indicator */}
         {isLoading && <Spinner className="absolute bottom-8 left-8" />}
       </div>
-
-      {/* Image author information */}
-      {backgroundType === 'image' && (
-        <div className="absolute bottom-4 right-4 opacity-80">
-          <div className="group-hover:flex hidden items-center">
-            <span className="text-sm text-white mx-2">Photo by</span>
-            <a
-              href={imageInfo.profile}
-              target="_blank"
-              rel="noreferrer"
-              className="cursor-pointer flex items-center bg-gray-300 rounded-full text-sm"
-            >
-              <img
-                src={imageInfo.avatar}
-                alt={imageInfo.name}
-                className="h-6 w-6 rounded-full mr-2"
-              />
-              <span className="pr-2">{imageInfo.name}</span>
-            </a>
-            <a
-              href="https://unsplash.com/?utm_source=PicProse&utm_medium=referral"
-              target="_blank"
-              className="text-sm text-white mx-2"
-            >
-              Unsplash
-            </a>
-          </div>
-        </div>
-      )}
     </div>
   );
 };
